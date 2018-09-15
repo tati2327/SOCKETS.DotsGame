@@ -23,6 +23,8 @@ public class frmClient extends JFrame implements ActionListener{
 	int port = 9090;
 
 	public frmClient() {
+		setTitle("CLIENT");
+		
 		txtReceive = new JTextArea();
 		txtReceive.setBounds(10, 90, 200, 200);
 		add(txtReceive);

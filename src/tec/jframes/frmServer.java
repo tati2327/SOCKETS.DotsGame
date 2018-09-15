@@ -25,19 +25,21 @@ public class frmServer extends JFrame implements Runnable, ActionListener{
 	Socket socket;
 
 	public frmServer() {
+		setTitle("SERVER");
+		
 		txtReceive = new JTextArea();
 		txtReceive.setBounds(10, 90, 200, 200);
 		add(txtReceive);
 
-		txtSend = new JTextField();
-		txtSend.setBounds(10,10,200,20);
-		add(txtSend);
+		//txtSend = new JTextField();
+		//txtSend.setBounds(10,10,200,20);
+		//add(txtSend);
 
-		btnSend = new JButton();
-		btnSend.setText("Enviar");
-		btnSend.setBounds(10,40,200,20);
-		btnSend.addActionListener(this);
-		add(btnSend);
+		//btnSend = new JButton();
+		//btnSend.setText("Enviar");
+		//btnSend.setBounds(10,40,200,20);
+		//btnSend.addActionListener(this);
+		//add(btnSend);
 
 		setLayout(null);
 		setSize(250,350);
@@ -45,7 +47,6 @@ public class frmServer extends JFrame implements Runnable, ActionListener{
 
 		Thread thread = new Thread(this);
 		thread.start();//Este metodo llama al metodo run que hayas creado
-
 	}
 
 	public static void main(String[] args) {
@@ -74,6 +75,12 @@ public class frmServer extends JFrame implements Runnable, ActionListener{
 	}
 
 	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/***@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == btnSend) {
 			try {
@@ -84,5 +91,5 @@ public class frmServer extends JFrame implements Runnable, ActionListener{
 				System.out.println("Error en cliente "+ ex.getMessage());
 			}
 		}
-	}
+	}***/
 }
