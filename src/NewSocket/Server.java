@@ -12,96 +12,93 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class Server {
+
 	int port;
-    ServerSocket server=null;
-    Socket client=null;
-    ExecutorService pool = null;
-    int clientcount=0;
-    
-    public static void main(String[] args) throws IOException {
-        Server serverobj=new Server(5000);
-        serverobj.startServer();
-    }
-    
-    Server(int port){
-        this.port=port;
-        pool = Executors.newFixedThreadPool(5);
-    }
+	ServerSocket server=null;
+	Socket socket=null;
+	//ExecutorService proporciona automáticamente un conjunto de hilos y API para asignarle tareas.
+	ExecutorService pool=null; 
+	int clientCount=0;
 
-    public void startServer() throws IOException {
-        
-        server=new ServerSocket(5000);
-        System.out.println("Server Booted");
-        System.out.println("Any client can stop the server by sending -1");
-        while(true)
-        {
-            client=server.accept();
-            clientcount++;
-            ServerThread runnable= new ServerThread(client,clientcount,this);
-            pool.execute(runnable);
-        }
-        
-    }
+	public static void main(String[] args) throws IOException {
+		//Se crea una instancia de un servidor para iniciar el programa
+		Server server = new Server(8080);
+		server.startServer();
+	}
 
-    private static class ServerThread implements Runnable {
-        
-        Server server=null;
-        Socket client=null;
-        BufferedReader cin;
-        PrintStream cout;
-        Scanner sc=new Scanner(System.in);
-        int id;
-        String s;
-        
-        ServerThread(Socket client, int count ,Server server ) throws IOException {
-            
-            this.client=client;
-            this.server=server;
-            this.id=count;
-            System.out.println("Connection "+id+"established with client "+client);
-            
-            cin=new BufferedReader(new InputStreamReader(client.getInputStream()));
-            cout=new PrintStream(client.getOutputStream());
-        
-        }
+	/**Constructor
+	 * @param port
+	 */
+	public Server(int port){
+		this.port=port;
+		//Se crea un grupo de subprocesos con n subprocesos
+		pool = Executors.newFixedThreadPool(5);
+	}
 
-        @Override
-        public void run() {
-            int x=1;
-         try{
-         while(true){
-               s=cin.readLine();
-  			 
-			System. out.print("Client("+id+") :"+s+"\n");
-			System.out.print("Server : ");
-			//s=stdin.readLine();
-                            s=sc.nextLine();
-                        if (s.equalsIgnoreCase("bye"))
-                        {
-                            cout.println("BYE");
-                            x=0;
-                            System.out.println("Connection ended by server");
-                            break;
-                        }
-			cout.println(s);
+	public void startServer() throws IOException {
+		server = new ServerSocket(8080);
+		System.out.println("Servidor esperando...");
+		System.out.println("Cualquier cliente puede detener el servidor enviando -1");
+		while(true){
+			socket = server.accept();
+			clientCount++;
+			ServerThread runnable= new ServerThread(socket, clientCount, this);
+			pool.execute(runnable);
 		}
-		
-            
-                cin.close();
-                client.close();
-		cout.close();
-                if(x==0) {
-			System.out.println( "Server cleaning up." );
-			System.exit(0);
-                }
-         } 
-         catch(IOException ex){
-             System.out.println("Error : "+ex);
-         }
-            
- 		
-        }
-    }
+	}
+
+	//Clase con los hilos
+	private static class ServerThread implements Runnable {
+
+		Server server;
+		Socket socket;
+		BufferedReader input; //Almacena los datos de entrada como strings
+		PrintStream output; //agrega funcionalidad a otro flujo de salida
+		Scanner scanner = new Scanner(System.in); //Un escáner divide su entrada en tokens usando un patrón de delimitador
+		int id;
+		String messageReceived;
+
+		ServerThread(Socket socket, int count, Server server) throws IOException {
+
+			this.socket = socket;
+			this.server = server;
+			this.id = count;
+			System.out.println("Conexion "+id+" establecida con el cliente "+socket);
+
+			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			output=new PrintStream(socket.getOutputStream());
+		}
+
+		@Override
+		public void run() {
+			int x=1;
+			try{
+				while(true){
+					messageReceived = input.readLine();
+					System. out.print("Cliente("+id+") :"+messageReceived+"\n");
+					System.out.print("Servidor : ");
+					messageReceived = scanner.nextLine();
+					
+					if (messageReceived.equalsIgnoreCase("Adios")){
+						output.println("Adios");
+						x=0;
+						System.out.println("Conexion terminada por el servidor");
+						break;
+					}
+					output.println(messageReceived);
+				}    
+				input.close();
+				socket.close();
+				output.close();
+				if(x==0) {
+					System.out.println( "Servidor limpiado" );
+					System.exit(0);
+				}
+			} 
+			catch(IOException ex){
+				System.out.println("Error : "+ex);
+			}
+		}
+	}
 }
